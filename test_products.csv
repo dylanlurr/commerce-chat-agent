@@ -1,0 +1,14 @@
+id,title,description,price,category,attributes,image_url,stock,color,weight_kg
+P001,MacBook Pro 14,Apple M3 Pro chip laptop with 14-inch Liquid Retina XDR display,1999.99,Laptops,"{""brand"":""Apple"",""chip"":""M3 Pro"",""ram"":""18GB"",""storage"":""512GB SSD""}",https://example.com/macbook-pro-14.jpg,15,Silver,1.6
+P002,Dell XPS 15,Intel Core Ultra 7 laptop with 15.6-inch OLED display,1499.99,Laptops,"{""brand"":""Dell"",""chip"":""Core Ultra 7"",""ram"":""16GB"",""storage"":""512GB SSD""}",https://example.com/dell-xps-15.jpg,8,Platinum,1.86
+P003,Sony WH-1000XM5,Premium wireless noise-cancelling headphones,348.00,Headphones,"{""brand"":""Sony"",""type"":""Over-ear"",""noise_cancelling"":true,""battery_hours"":30}",https://example.com/sony-wh1000xm5.jpg,25,Black,0.25
+P004,AirPods Pro 2,Apple active noise cancellation earbuds with USB-C,249.00,Headphones,"{""brand"":""Apple"",""type"":""In-ear"",""noise_cancelling"":true,""battery_hours"":6}",https://example.com/airpods-pro-2.jpg,40,White,0.05
+P005,Samsung Galaxy S24 Ultra,Flagship smartphone with AI features and S Pen,1199.99,Smartphones,"{""brand"":""Samsung"",""screen"":""6.8 inch"",""ram"":""12GB"",""storage"":""256GB""}",https://example.com/galaxy-s24-ultra.jpg,12,Titanium Gray,0.23
+P006,iPhone 16 Pro,Apple A18 Pro chip with advanced camera system,999.99,Smartphones,"{""brand"":""Apple"",""screen"":""6.3 inch"",""ram"":""8GB"",""storage"":""256GB""}",https://example.com/iphone-16-pro.jpg,20,Natural Titanium,0.20
+P007,LG C4 OLED 55,55-inch 4K OLED Smart TV with webOS,1296.99,TVs,"{""brand"":""LG"",""size"":""55 inch"",""resolution"":""4K"",""panel"":""OLED""}",https://example.com/lg-c4-oled.jpg,5,Black,14.2
+P008,Logitech MX Master 3S,Wireless ergonomic mouse with silent clicks,99.99,Accessories,"{""brand"":""Logitech"",""type"":""Wireless Mouse"",""dpi"":8000}",https://example.com/mx-master-3s.jpg,50,Graphite,0.14
+P009,Mechanical Keyboard K8,Compact tenkeyless mechanical keyboard with RGB,149.00,Accessories,"{""brand"":""Keychron"",""type"":""Mechanical Keyboard"",""switches"":""Gateron Brown""}",https://example.com/keychron-k8.jpg,30,Space Gray,0.77
+P010,iPad Air M2,Apple M2 chip tablet with 11-inch Liquid Retina display,599.00,Tablets,"{""brand"":""Apple"",""chip"":""M2"",""storage"":""128GB""}",https://example.com/ipad-air-m2.jpg,18,Blue,0.46
+P011,Out of Stock Item,This product has zero stock for testing,79.99,Testing,"{""brand"":""Test""}",https://example.com/oos.jpg,0,N/A,0.1
+,,,,,,,,
+P013,Bad Price Product,This product has an invalid price,not_a_price,Testing,"{}",https://example.com/bad.jpg,10,Red,0.5

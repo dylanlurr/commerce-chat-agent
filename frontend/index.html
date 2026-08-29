@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commerce Chat Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hub {
+            text-align: center;
+            max-width: 500px;
+        }
+        .hub h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .hub p {
+            color: #a0aec0;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        .links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+        .link-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-decoration: none;
+            color: white;
+            flex: 1;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .link-card:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+        .link-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+        .link-card h2 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .link-card p { font-size: 0.85rem; color: #a0aec0; }
+    </style>
+</head>
+<body>
+    <div class="hub">
+        <h1>🛍️ Commerce Chat Agent</h1>
+        <p>Conversational commerce platform with AI-powered shopping assistance</p>
+        <div class="links">
+            <a class="link-card" href="http://localhost:8000">
+                <div class="icon">📦</div>
+                <h2>Merchant</h2>
+                <p>Upload catalog, manage products</p>
+            </a>
+            <a class="link-card" href="http://localhost:8001">
+                <div class="icon">💬</div>
+                <h2>Consumer</h2>
+                <p>Chat with AI shopping assistant</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

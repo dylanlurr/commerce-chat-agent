@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Assistant — Commerce Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            border-bottom: 2px solid #111122;
+        }
+        .header h1 { font-size: 1.2rem; font-weight: 600; }
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .header a {
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .header a:hover { color: white; }
+
+        /* Merchant selector bar */
+        .merchant-bar {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 2px solid #cbd5e1;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .merchant-bar label { font-size: 0.9rem; font-weight: 700; color: #334155; }
+        .merchant-bar select {
+            padding: 0.5rem 0.85rem;
+            border: 2px solid #94a3b8;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: white;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .merchant-bar select:focus {
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.15);
+        }
+        .merchant-bar button {
+            padding: 0.5rem 1rem;
+            border: 2px solid #94a3b8;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+            transition: all 0.2s;
+        }
+        .merchant-bar button:hover {
+            border-color: #4a69bd;
+            background: #f0f4ff;
+            color: #1e293b;
+        }
+
+        /* Main layout */
+        .main { display: flex; flex: 1; overflow: hidden; }
+
+        /* Chat area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+
+        .messages-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .messages {
+            max-width: 840px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Welcome Hero Card */
+        .welcome-hero {
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            max-width: 620px;
+            width: 100%;
+            margin: auto;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .welcome-hero h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+        .welcome-hero p {
+            font-size: 1.05rem;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .welcome-prompt-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+        .prompt-chip {
+            background: #f1f5f9;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 0.45rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prompt-chip:hover {
+            background: #4a69bd;
+            border-color: #3c5aa6;
+            color: white;
+            transform: translateY(-1px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Message bubbles */
+        .message {
+            padding: 0.9rem 1.25rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        .message-user {
+            align-self: flex-end;
+            max-width: 75%;
+            background: #4a69bd;
+            color: white;
+            border: 2px solid #3c5aa6;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 6px rgba(74, 105, 189, 0.15);
+        }
+        .message-assistant {
+            align-self: flex-start;
+            max-width: 80%;
+            min-width: 220px;
+            background: white;
+            color: #1e293b;
+            border: 2px solid #cbd5e1;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .message-sender {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #4a69bd;
+            margin-bottom: 0.35rem;
+        }
+        .message-system {
+            align-self: center;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.85rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+        }
+
+        /* Markdown-like rendering in messages */
+        .message-assistant strong { font-weight: 600; color: #0f172a; }
+        .message-assistant code {
+            background: #f1f5f9;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* Typing indicator */
+        .typing-container {
+            max-width: 840px;
+            width: 100%;
+            display: flex;
+            align-self: center;
+        }
+        .typing {
+            align-self: flex-start;
+            padding: 0.75rem 1.25rem;
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            display: none;
+            margin-bottom: 0.75rem;
+        }
+        .typing span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Input area */
+        .input-area-wrapper {
+            background: white;
+            border-top: 2px solid #cbd5e1;
+            display: flex;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .input-area {
+            max-width: 840px;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 0.75rem 1.2rem;
+            border: 2px solid #94a3b8;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-area input:focus {
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.15);
+        }
+        .input-area button {
+            padding: 0.75rem 1.6rem;
+            background: #4a69bd;
+            color: white;
+            border: 2px solid #3c5aa6;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .input-area button:hover:not(:disabled) {
+            background: #3c5aa6;
+        }
+        .input-area button:disabled {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Cart sidebar */
+        .cart-sidebar {
+            width: 300px;
+            background: white;
+            border-left: 2px solid #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .cart-header {
+            padding: 1rem;
+            border-bottom: 2px solid #cbd5e1;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1e293b;
+        }
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        .cart-item {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+        .cart-item-title { font-weight: 600; color: #334155; }
+        .cart-item-meta { color: #64748b; font-size: 0.8rem; }
+        .cart-footer {
+            padding: 1rem;
+            border-top: 2px solid #cbd5e1;
+            background: #f8fafc;
+        }
+        .cart-total {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #1e293b;
+        }
+        .cart-empty {
+            color: #94a3b8;
+            text-align: center;
+            padding: 2rem 1rem;
+            font-size: 0.9rem;
+        }
+        .btn-checkout {
+            width: 100%;
+            padding: 0.7rem;
+            background: #27ae60;
+            color: white;
+            border: 2px solid #219a52;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn-checkout:hover { background: #219a52; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cart-sidebar { display: none; }
+            .message { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Shopping Assistant</h1>
+        <div class="header-right">
+            <a href="http://localhost:8000" target="_blank">← Merchant Dashboard</a>
+        </div>
+    </div>
+
+    <div class="merchant-bar">
+        <label>Store:</label>
+        <select id="merchantSelect">
+            <option value="">— Select a store —</option>
+        </select>
+        <button onclick="refreshPage()" title="Refresh store list and reset page">Refresh</button>
+        <span id="merchantStatus" style="color: #999; font-size: 0.85rem;"></span>
+    </div>
+
+    <div class="main">
+        <div class="chat-container">
+            <div class="messages-wrapper" id="messagesWrapper">
+                <div class="messages" id="messages">
+                    <div class="welcome-hero" id="welcomeHero">
+                        <h2>Shopping Assistant</h2>
+                        <p>Please select a store above to start shopping with your AI assistant.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="typing-container">
+                <div class="typing" id="typing">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="input-area-wrapper">
+                <div class="input-area">
+                    <input type="text" id="messageInput" placeholder="Ask about products, compare items, or checkout…"
+                           onkeypress="if(event.key==='Enter') sendMessage()" disabled>
+                    <button id="sendBtn" onclick="sendMessage()" disabled>Send</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cart-sidebar">
+            <div class="cart-header">Your Cart</div>
+            <div class="cart-items" id="cartItems">
+                <div class="cart-empty">Your cart is empty</div>
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">Total: $<span id="cartTotal">0.00</span></div>
+                <button class="btn-checkout" onclick="requestCheckout()">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONSUMER_API = 'http://localhost:8001';
+        const MERCHANT_API = 'http://localhost:8000';
+        let merchantId = null;
+        let sessionId = 'session-' + Math.random().toString(36).substr(2, 9);
+
+        // ── Refresh page & reset to initial state ────────────────────────
+        async function refreshPage() {
+            merchantId = null;
+            sessionId = 'session-' + Math.random().toString(36).substr(2, 9);
+
+            const input = document.getElementById('messageInput');
+            const btn = document.getElementById('sendBtn');
+            input.value = '';
+            input.disabled = true;
+            btn.disabled = true;
+
+            // Reset chat messages to initial state
+            document.getElementById('messages').innerHTML = `
+                <div class="welcome-hero" id="welcomeHero">
+                    <h2>Shopping Assistant</h2>
+                    <p>Please select a store above to start shopping with your AI assistant.</p>
+                </div>
+            `;
+
+            // Reset cart UI
+            document.getElementById('cartItems').innerHTML = '<div class="cart-empty">Your cart is empty</div>';
+            document.getElementById('cartTotal').textContent = '0.00';
+            document.getElementById('merchantStatus').textContent = '';
+
+            // Re-load merchants
+            await loadMerchants();
+        }
+
+        // ── Load merchants from merchant backend ─────────────────────────
+        async function loadMerchants() {
+            try {
+                const res = await fetch(`${MERCHANT_API}/merchants`);
+                const merchants = await res.json();
+                const sel = document.getElementById('merchantSelect');
+                sel.innerHTML = '<option value="">— Select a store —</option>';
+                merchants.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.name;
+                    sel.appendChild(opt);
+                });
+                sel.value = '';
+            } catch (e) {
+                document.getElementById('merchantStatus').textContent = 'Cannot reach merchant backend';
+            }
+        }
+
+        // ── Merchant selection ───────────────────────────────────────────
+        document.getElementById('merchantSelect').addEventListener('change', (e) => {
+            merchantId = e.target.value || null;
+            const input = document.getElementById('messageInput');
+            const btn = document.getElementById('sendBtn');
+            const sel = document.getElementById('merchantSelect');
+            const selectedStore = sel.options[sel.selectedIndex]?.textContent || 'our store';
+
+            if (merchantId) {
+                input.disabled = false;
+                btn.disabled = false;
+                // Reset session for new merchant
+                sessionId = 'session-' + Math.random().toString(36).substr(2, 9);
+                
+                // Render prominent, centered welcome hero card
+                document.getElementById('messages').innerHTML = `
+                    <div class="welcome-hero" id="welcomeHero">
+                        <h2>Welcome to ${escHtml(selectedStore)}!</h2>
+                        <p>Welcome! I'm your shopping assistant. Ask me anything — search for products, compare items, check stock, or get help finding what you need.</p>
+                        <div class="welcome-prompt-list">
+                            <button class="prompt-chip" onclick="sendQuickPrompt('What products do you have available?')">What products do you have?</button>
+                            <button class="prompt-chip" onclick="sendQuickPrompt('Show me what is in stock')">Show in-stock items</button>
+                            <button class="prompt-chip" onclick="sendQuickPrompt('Can you recommend your best products?')">Recommend products</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('merchantStatus').textContent = '';
+                input.focus();
+            } else {
+                input.disabled = true;
+                btn.disabled = true;
+                document.getElementById('messages').innerHTML = `
+                    <div class="welcome-hero" id="welcomeHero">
+                        <h2>Shopping Assistant</h2>
+                        <p>Please select a store above to start shopping with your AI assistant.</p>
+                    </div>
+                `;
+            }
+        });
+
+        // ── Quick Prompt Helper ──────────────────────────────────────────
+        function sendQuickPrompt(promptText) {
+            const input = document.getElementById('messageInput');
+            input.value = promptText;
+            sendMessage();
+        }
+
+        // ── Add message to chat ──────────────────────────────────────────
+        function addMessage(role, content) {
+            const messages = document.getElementById('messages');
+            
+            // Remove initial welcome hero when first real message is added so messages flow from the top
+            const hero = document.getElementById('welcomeHero');
+            if (hero) hero.remove();
+
+            const div = document.createElement('div');
+            div.className = `message message-${role}`;
+            
+            // Simple markdown rendering for assistant messages
+            if (role === 'assistant') {
+                const sender = document.createElement('div');
+                sender.className = 'message-sender';
+                sender.textContent = 'Assistant';
+                div.appendChild(sender);
+
+                const body = document.createElement('div');
+                body.className = 'message-body';
+                content = content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/\n/g, '<br>');
+                body.innerHTML = content;
+                div.appendChild(body);
+            } else {
+                div.textContent = content;
+            }
+
+            messages.appendChild(div);
+            const scrollContainer = document.getElementById('messagesWrapper') || messages;
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }
+
+        // ── Send message ─────────────────────────────────────────────────
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message || !merchantId) return;
+
+            input.value = '';
+            addMessage('user', message);
+
+            // Show typing indicator
+            const typing = document.getElementById('typing');
+            typing.style.display = 'block';
+            document.getElementById('sendBtn').disabled = true;
+
+            const scrollContainer = document.getElementById('messagesWrapper');
+            if (scrollContainer) scrollContainer.scrollTop = scrollContainer.scrollHeight;
+
+            try {
+                const res = await fetch(`${CONSUMER_API}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        merchant_id: merchantId,
+                        message: message,
+                    }),
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Chat request failed');
+                }
+
+                const data = await res.json();
+                addMessage('assistant', data.reply);
+
+                // Update cart if summary provided
+                if (data.cart_summary) {
+                    updateCartUI(data.cart_summary);
+                }
+
+                // Also try to parse cart info from reply (agent may have modified cart)
+                await refreshCart();
+
+            } catch (e) {
+                addMessage('system', `Error: ${e.message}`);
+            } finally {
+                typing.style.display = 'none';
+                document.getElementById('sendBtn').disabled = false;
+                input.focus();
+            }
+        }
+
+        // ── Refresh cart state ───────────────────────────────────────────
+        async function refreshCart() {
+            // Managed server-side
+        }
+
+        function updateCartUI(summary) {
+            const container = document.getElementById('cartItems');
+            const totalSpan = document.getElementById('cartTotal');
+
+            if (!summary.items || summary.items.length === 0) {
+                container.innerHTML = '<div class="cart-empty">Your cart is empty</div>';
+                totalSpan.textContent = '0.00';
+                return;
+            }
+
+            let html = '';
+            summary.items.forEach(item => {
+                html += `<div class="cart-item">
+                    <div class="cart-item-title">${escHtml(item.title)}</div>
+                    <div class="cart-item-meta">${item.quantity}x $${item.price.toFixed(2)}</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            totalSpan.textContent = summary.total.toFixed(2);
+        }
+
+        // ── Checkout via chat ────────────────────────────────────
+        function requestCheckout() {
+            if (!merchantId) return;
+            document.getElementById('messageInput').value = 'I would like to checkout please';
+            sendMessage();
+        }
+
+        // ── Utility ──────────────────────────────────────────────────────
+        function escHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        // ── Init ─────────────────────────────────────────────────────────
+        loadMerchants();
+    </script>
+</body>
+</html>

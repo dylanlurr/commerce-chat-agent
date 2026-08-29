@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Dashboard — Commerce Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header h1 { font-size: 1.4rem; font-weight: 600; }
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .header a {
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .header a:hover { color: white; }
+
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+        /* Merchant selector */
+        .merchant-bar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .field { display: flex; flex-direction: column; gap: 0.3rem; }
+        .field label { font-size: 0.85rem; font-weight: 600; color: #555; }
+        .field input, .field select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            min-width: 220px;
+        }
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: #4a69bd; color: white; }
+        .btn-primary:hover { background: #3c5aa6; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #219a52; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-small {
+            padding: 0.3rem 0.7rem;
+            font-size: 0.8rem;
+        }
+
+        /* Upload area */
+        .upload-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .upload-section h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+        }
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: #888;
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: #4a69bd;
+            background: #f0f4ff;
+        }
+        .drop-zone input { display: none; }
+
+        /* Upload result */
+        .upload-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+        }
+        .upload-result.success { background: #e8f5e9; border: 1px solid #a5d6a7; }
+        .upload-result.error { background: #ffebee; border: 1px solid #ef9a9a; }
+        .upload-result.warning { background: #fff8e1; border: 1px solid #ffe082; }
+
+        .tag-pill {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0.2rem;
+        }
+        .tag-mapped { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .tag-unmapped { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+
+        /* Product table */
+        .products-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .products-header h2 {
+            font-size: 1.1rem;
+            color: #1a1a2e;
+        }
+        .table-header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e9ecef;
+        }
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+        tr:hover { background: #f8f9ff; }
+        td input {
+            padding: 0.3rem 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+        td input:focus {
+            outline: none;
+            border-color: #4a69bd;
+        }
+
+        .attributes-preview {
+            font-size: 0.75rem;
+            color: #666;
+            background: #f8f9fa;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        /* Status badge */
+        .stock-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .stock-in { background: #e8f5e9; color: #2e7d32; }
+        .stock-low { background: #fff8e1; color: #f57f17; }
+        .stock-out { background: #ffebee; color: #c62828; }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+        .empty-state p { font-size: 1rem; }
+
+        /* Actions column */
+        .row-actions {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-success { background: #27ae60; }
+        .toast-error { background: #e74c3c; }
+        .toast-info { background: #34495e; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Merchant Dashboard</h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary btn-small" onclick="refreshDashboard()" title="Re-fetch stores and product catalog">Refresh</button>
+            <a href="http://localhost:8001" target="_blank">Open Consumer Chat →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Merchant Selector / Creator -->
+        <div class="merchant-bar">
+            <div class="field">
+                <label>Select Merchant Store</label>
+                <select id="merchantSelect">
+                    <option value="">— Select or create —</option>
+                </select>
+            </div>
+            <button id="deleteMerchantBtn" class="btn btn-danger" style="display: none;" onclick="deleteCurrentMerchant()" title="Permanently delete this merchant and drop its database">Delete Store</button>
+            <div class="field">
+                <label>New Merchant Name</label>
+                <input type="text" id="newMerchantName" placeholder="e.g. Apex Electronics">
+            </div>
+            <div class="field">
+                <label>Email (optional)</label>
+                <input type="text" id="newMerchantEmail" placeholder="merchant@email.com">
+            </div>
+            <button class="btn btn-primary" onclick="createMerchant()">+ Provision Store DB</button>
+        </div>
+
+        <!-- CSV Upload -->
+        <div class="upload-section">
+            <h2>Upload Product Catalog (CSV)</h2>
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('csvFile').click()">
+                <p>Drag & drop a CSV file here, or click to browse</p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #aaa;">
+                    Target Schema: <code>title, description, price, category, attributes, image_url, stock</code> (OpenAI auto-maps headers & unmapped columns are saved in attributes)
+                </p>
+                <input type="file" id="csvFile" accept=".csv" onchange="handleFileSelect(event)">
+            </div>
+            <div class="upload-result" id="uploadResult"></div>
+        </div>
+
+        <!-- Product Table -->
+        <div class="products-section">
+            <div class="products-header">
+                <h2>Products in Store <span id="productCount" style="font-weight: normal; color: #999;"></span></h2>
+                <div id="tableHeaderActions" class="table-header-actions" style="display: none;">
+                    <button id="clearAllBtn" class="btn btn-danger btn-small" onclick="clearAllProducts()">Clear All Products</button>
+                    <button class="btn btn-secondary btn-small" onclick="refreshDashboard()" title="Refresh catalog and stores">Refresh</button>
+                </div>
+            </div>
+            <div id="productTableContainer">
+                <div class="empty-state">
+                    <p>Select a merchant store to view and manage its catalog.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API = 'http://localhost:8000';
+        let currentMerchantId = null;
+
+        // ── Toast ────────────────────────────────────────────────────────
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // ── Refresh Dashboard ────────────────────────────────────────────
+        async function refreshDashboard() {
+            showToast('Refreshing data…', 'info');
+            await loadMerchants();
+            if (currentMerchantId) {
+                await loadProducts();
+            }
+        }
+
+        // ── Load merchants ───────────────────────────────────────────────
+        async function loadMerchants() {
+            try {
+                const res = await fetch(`${API}/merchants`);
+                const merchants = await res.json();
+                const sel = document.getElementById('merchantSelect');
+                sel.innerHTML = '<option value="">— Select or create —</option>';
+                merchants.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = `${m.name}${m.email ? ' (' + m.email + ')' : ''}`;
+                    opt.title = `Database: ${m.database_name}`;
+                    opt.dataset.dbname = m.database_name;
+                    sel.appendChild(opt);
+                });
+                if (currentMerchantId) {
+                    sel.value = currentMerchantId;
+                    document.getElementById('deleteMerchantBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('deleteMerchantBtn').style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Failed to load merchants:', e);
+            }
+        }
+
+        // ── Create merchant ──────────────────────────────────────────────
+        async function createMerchant() {
+            const name = document.getElementById('newMerchantName').value.trim();
+            if (!name) { showToast('Please enter a merchant name', 'error'); return; }
+            const email = document.getElementById('newMerchantEmail').value.trim() || null;
+
+            try {
+                const res = await fetch(`${API}/merchants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email }),
+                });
+                if (!res.ok) throw new Error(await res.text());
+                const merchant = await res.json();
+                currentMerchantId = merchant.id;
+                document.getElementById('newMerchantName').value = '';
+                document.getElementById('newMerchantEmail').value = '';
+                await loadMerchants();
+                showToast(`Store "${merchant.name}" created!`);
+                loadProducts();
+            } catch (e) {
+                showToast(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ── Delete merchant ──────────────────────────────────────────────
+        async function deleteCurrentMerchant() {
+            if (!currentMerchantId) return;
+            const sel = document.getElementById('merchantSelect');
+            const selectedName = sel.options[sel.selectedIndex]?.textContent || 'this store';
+
+            if (!confirm(`WARNING: PERMANENT DESTRUCTION\n\nAre you sure you want to permanently delete store "${selectedName}"?\n\nThis will:\n1. DROP its dedicated PostgreSQL database\n2. Permanently delete all catalog products, carts, and transaction records\n3. Remove the store from the central registry\n\nThis action CANNOT be undone.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/merchants/${currentMerchantId}`, {
+                    method: 'DELETE',
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Failed to delete store');
+                }
+                const data = await res.json();
+                showToast(data.message || `Store "${selectedName}" deleted!`);
+                currentMerchantId = null;
+                document.getElementById('merchantSelect').value = '';
+                document.getElementById('deleteMerchantBtn').style.display = 'none';
+                document.getElementById('tableHeaderActions').style.display = 'none';
+                document.getElementById('productTableContainer').innerHTML = 
+                    '<div class="empty-state"><p>Select a merchant store to view and manage its catalog.</p></div>';
+                document.getElementById('productCount').textContent = '';
+                await loadMerchants();
+            } catch (e) {
+                showToast(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ── Merchant select change ───────────────────────────────────────
+        document.getElementById('merchantSelect').addEventListener('change', (e) => {
+            currentMerchantId = e.target.value || null;
+            const deleteBtn = document.getElementById('deleteMerchantBtn');
+            if (currentMerchantId) {
+                deleteBtn.style.display = 'inline-block';
+                loadProducts();
+            } else {
+                deleteBtn.style.display = 'none';
+                document.getElementById('productTableContainer').innerHTML = 
+                    '<div class="empty-state"><p>Select a merchant store to view and manage its catalog.</p></div>';
+                document.getElementById('productCount').textContent = '';
+                document.getElementById('tableHeaderActions').style.display = 'none';
+            }
+        });
+
+        // ── Drag & Drop ──────────────────────────────────────────────────
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) uploadCSV(file);
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) uploadCSV(file);
+        }
+
+        // ── Upload CSV ───────────────────────────────────────────────────
+        async function uploadCSV(file) {
+            if (!currentMerchantId) {
+                showToast('Please select or create a merchant store first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('merchant_id', currentMerchantId);
+
+            const resultDiv = document.getElementById('uploadResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'upload-result';
+            resultDiv.innerHTML = '<p>Processing CSV and inferring column mappings via OpenAI…</p>';
+
+            try {
+                const res = await fetch(`${API}/catalog/upload`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Upload failed');
+                }
+                const data = await res.json();
+
+                let html = '';
+                // Ingestion Summary
+                html += `<div style="display:flex; justify-content:space-between; align-items:center;">
+                    <p><strong>Upload complete:</strong> ${data.ingested_rows}/${data.total_rows} rows ingested`;
+                if (data.skipped_rows > 0) html += `, ${data.skipped_rows} skipped`;
+                html += `</p>`;
+
+                // Undo button if upload_id exists and products were ingested
+                if (data.upload_id && data.ingested_rows > 0) {
+                    html += `<button class="btn btn-danger btn-small" onclick="undoUpload('${data.upload_id}', ${data.ingested_rows})">Undo Upload</button>`;
+                }
+                html += `</div>`;
+
+                // Auto-mapped columns
+                const mappedKeys = Object.keys(data.inferred_mapping || {});
+                if (mappedKeys.length > 0) {
+                    html += `<div style="margin-top: 0.5rem;">
+                        <strong>Auto-Mapped Columns:</strong><br>`;
+                    mappedKeys.forEach(col => {
+                        html += `<span class="tag-pill tag-mapped">${escHtml(col)} -&gt; ${escHtml(data.inferred_mapping[col])}</span>`;
+                    });
+                    html += `</div>`;
+                }
+
+                // Unmapped columns (now saved in attributes)
+                if (data.unmapped_columns && data.unmapped_columns.length > 0) {
+                    html += `<div style="margin-top: 0.5rem; color: #2e7d32;">
+                        <strong>Extra Columns (Saved to Attributes):</strong><br>`;
+                    data.unmapped_columns.forEach(col => {
+                        html += `<span class="tag-pill tag-unmapped">${escHtml(col)}</span>`;
+                    });
+                    html += `</div>`;
+                    resultDiv.classList.add('success');
+                } else {
+                    resultDiv.classList.add('success');
+                }
+
+                // Errors
+                if (data.errors && data.errors.length > 0) {
+                    html += `<details style="margin-top: 0.5rem;"><summary>${data.errors.length} row validation error(s)</summary><ul>`;
+                    data.errors.forEach(err => {
+                        html += `<li>Row ${err.row}: ${err.field} — ${err.message}</li>`;
+                    });
+                    html += `</ul></details>`;
+                    resultDiv.classList.add('warning');
+                }
+
+                resultDiv.innerHTML = html;
+                loadProducts();
+                showToast(`${data.ingested_rows} products ingested!`);
+            } catch (e) {
+                resultDiv.classList.add('error');
+                resultDiv.innerHTML = `<p>Error: ${e.message}</p>`;
+                showToast(e.message, 'error');
+            }
+        }
+
+        // ── Undo / Delete Upload ─────────────────────────────────────────
+        async function undoUpload(uploadId, count) {
+            if (!confirm(`Are you sure you want to undo this upload and remove all ${count} products from it?`)) return;
+
+            try {
+                const res = await fetch(`${API}/catalog/upload/${uploadId}?merchant_id=${currentMerchantId}`, {
+                    method: 'DELETE',
+                });
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                showToast(data.message || 'Upload undone!');
+                document.getElementById('uploadResult').style.display = 'none';
+                loadProducts();
+            } catch (e) {
+                showToast(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ── Clear All Products ───────────────────────────────────────────
+        async function clearAllProducts() {
+            if (!currentMerchantId) return;
+            if (!confirm('Are you sure you want to delete ALL products from this store? This cannot be undone.')) return;
+
+            try {
+                const res = await fetch(`${API}/catalog/clear/all?merchant_id=${currentMerchantId}`, {
+                    method: 'DELETE',
+                });
+                if (!res.ok) throw new Error(await res.text());
+                showToast('All products cleared!');
+                loadProducts();
+            } catch (e) {
+                showToast(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ── Delete Individual Product ────────────────────────────────────
+        async function deleteProduct(productId, title) {
+            if (!confirm(`Delete product "${title}"?`)) return;
+
+            try {
+                const res = await fetch(`${API}/catalog/${productId}?merchant_id=${currentMerchantId}`, {
+                    method: 'DELETE',
+                });
+                if (!res.ok) throw new Error(await res.text());
+                showToast(`Product deleted!`);
+                loadProducts();
+            } catch (e) {
+                showToast(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ── Load & render products ───────────────────────────────────────
+        async function loadProducts() {
+            if (!currentMerchantId) return;
+
+            try {
+                const res = await fetch(`${API}/catalog?merchant_id=${currentMerchantId}`);
+                const data = await res.json();
+                const container = document.getElementById('productTableContainer');
+                const countSpan = document.getElementById('productCount');
+                const headerActions = document.getElementById('tableHeaderActions');
+
+                const clearAllBtn = document.getElementById('clearAllBtn');
+                if (!data.products || data.products.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>No products in this store yet. Upload a CSV above to get started.</p></div>';
+                    countSpan.textContent = '(0)';
+                    headerActions.style.display = 'flex';
+                    if (clearAllBtn) clearAllBtn.style.display = 'none';
+                    return;
+                }
+
+                countSpan.textContent = `(${data.total})`;
+                headerActions.style.display = 'flex';
+                if (clearAllBtn) clearAllBtn.style.display = 'inline-block';
+
+                let html = `<table>
+                    <thead><tr>
+                        <th style="width: 25%;">Title</th>
+                        <th style="width: 15%;">Category</th>
+                        <th style="width: 10%;">Price ($)</th>
+                        <th style="width: 12%;">Stock</th>
+                        <th style="width: 18%;">Attributes</th>
+                        <th style="width: 20%;">Actions</th>
+                    </tr></thead><tbody>`;
+
+                data.products.forEach(p => {
+                    const stockClass = p.stock === 0 ? 'stock-out' : p.stock < 5 ? 'stock-low' : 'stock-in';
+                    const stockLabel = p.stock === 0 ? 'Out' : p.stock < 5 ? 'Low' : 'In Stock';
+                    const attrStr = p.attributes && Object.keys(p.attributes).length > 0
+                        ? JSON.stringify(p.attributes)
+                        : '—';
+
+                    html += `<tr id="row-${p.id}">
+                        <td><input value="${escHtml(p.title)}" data-id="${p.id}" data-field="title"></td>
+                        <td><input value="${escHtml(p.category || '')}" data-id="${p.id}" data-field="category"></td>
+                        <td><input type="number" step="0.01" value="${p.price}" data-id="${p.id}" data-field="price"></td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <input type="number" value="${p.stock}" data-id="${p.id}" data-field="stock" style="width:60px;">
+                                <span class="stock-badge ${stockClass}">${stockLabel}</span>
+                            </div>
+                        </td>
+                        <td><span class="attributes-preview" title="${escHtml(attrStr)}">${escHtml(attrStr)}</span></td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="btn btn-success btn-small" onclick="saveProduct('${p.id}')">Save</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteProduct('${p.id}', '${escHtml(p.title).replace(/'/g, "\\'")}')" title="Delete product">Delete</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (e) {
+                console.error('Failed to load products:', e);
+            }
+        }
+
+        // ── Save product edits ───────────────────────────────────────────
+        async function saveProduct(productId) {
+            const row = document.getElementById(`row-${productId}`);
+            const inputs = row.querySelectorAll('input[data-id]');
+            const payload = {};
+            inputs.forEach(inp => {
+                let val = inp.value;
+                if (inp.dataset.field === 'price') val = parseFloat(val);
+                else if (inp.dataset.field === 'stock') val = parseInt(val, 10);
+                payload[inp.dataset.field] = val;
+            });
+
+            try {
+                const res = await fetch(`${API}/catalog/${productId}?merchant_id=${currentMerchantId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                if (!res.ok) throw new Error(await res.text());
+                showToast('Product updated in database!');
+                loadProducts();
+            } catch (e) {
+                showToast(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ── Utility ──────────────────────────────────────────────────────
+        function escHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        // ── Init ─────────────────────────────────────────────────────────
+        loadMerchants();
+    </script>
+</body>
+</html>
